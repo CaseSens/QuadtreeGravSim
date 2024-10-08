@@ -22,6 +22,6 @@ export default class Body {
   update(dt: number) {
     this.vel.mult(dt);
     this.pos.add(this.vel);
-    this.heat *= 0.999; // time lowers heat
+    this.heat *= 0.997; // time lowers heat
   }
 }

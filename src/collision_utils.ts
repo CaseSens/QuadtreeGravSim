@@ -2,7 +2,7 @@ import Body from "./body";
 import { dist } from "./phys_utils";
 import TreeNode from "./tree_node";
 import Vector from "./vector";
-const restitution = 0.12; // Restitution coefficient
+const restitution = 0.2; // Restitution coefficient
 
 export function collide(bodies: Body[], tn: TreeNode) {
   bodies.forEach((b) => {
@@ -20,7 +20,9 @@ export function collide(bodies: Body[], tn: TreeNode) {
 
 function doCollisions(b: Body, tn: TreeNode) {
   if (tn.leaf) {
-    if (!tn.body || b == tn.body) return;
+    if (!tn.body || b == tn.body) {
+      return;
+    }
 
     const distance = dist(b.pos, tn.body.pos);
     handleCollision(b, tn.body, distance);
@@ -58,12 +60,15 @@ function handleCollision(b1: Body, b2: Body, distance: number) {
   );
   b1.nextPos.add(mtd);
 
-  const impactSpeed = Vector.dot(b1.vel, dPos);
+  const impactSpeed = Vector.dot(Vector.getSub(b1.vel, b2.vel), dPos);
   b1.heat += Math.abs(impactSpeed) * 0.1;
 
   // If already moving away from each other, return
   if (impactSpeed > 0) return;
 
-  const force: Vector = Vector.getMult(dPos, impactSpeed * (1 + restitution) * 0.5);
+  const force: Vector = Vector.getMult(
+    dPos,
+    impactSpeed * (1 + restitution) * 0.5
+  );
   b1.nextVel.sub(force);
 }

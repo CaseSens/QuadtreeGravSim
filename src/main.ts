@@ -6,7 +6,7 @@ import { gravity } from "./phys_utils";
 import { collide } from "./collision_utils";
 
 // CONFIG
-const N = 100; // Num particles
+const N = 1000; // Num particles
 const r = 5; // Particle radius
 const mass = 2; // Particle mass
 
@@ -29,8 +29,6 @@ function setup() {
       randomInRange({ min: 0, max: initBounds - r }) // y
     );
 
-    console.log(pos);
-
     const vel = new Vector(
       randomInRange({ min: -initVel, max: initVel }), // x
       randomInRange({ min: -initVel, max: initVel }) // y
@@ -47,7 +45,10 @@ function getBoundingBox() {
   let minY = Number.MAX_VALUE;
   let maxY = -Number.MAX_VALUE;
 
+
   for (let i = 0; i < N; i++) {
+    if (!bodies[i]) continue;
+
     minX = Math.min(minX, bodies[i].pos.x);
     maxX = Math.max(maxX, bodies[i].pos.x);
     minY = Math.min(minY, bodies[i].pos.y);
@@ -79,8 +80,8 @@ function draw(dt: number) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.lineWidth = 2;
-  ctx.strokeStyle = "white";
   bodies.forEach((b) => {
+    ctx.strokeStyle = getColorFromHeat(b.heat / 12);
     ctx.beginPath();
     ctx.arc(b.pos.x, b.pos.y, b.radius, 0, 2 * Math.PI);
     ctx.stroke();
@@ -100,3 +101,15 @@ function animate(timestamp: number) {
 
 setup();
 requestAnimationFrame(animate);
+
+function getColorFromHeat(x: number) {
+  // Ensure x is clamped between 0 and 1
+  x = Math.max(0, Math.min(1, x));
+
+  const red = Math.round(500 * x);
+  const green = Math.round(500 * (1 - x));
+  const blue = 0; // This remains constant at 0
+
+  // Return the color as an RGB string
+  return `rgb(${red}, ${green}, ${blue})`;
+}

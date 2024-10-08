@@ -2,8 +2,8 @@ import Body from "./body";
 import TreeNode from "./tree_node";
 import Vector from "./vector";
 
-const G = 0.4; // Gravitational constant
-const theta = 0.7; // Constant use by barnes-hut algorithm
+const G = 0.05; // Gravitational constant
+const theta = 0.4; // Constant use by barnes-hut algorithm
 
 export function gravity(bodies: Body[], root: TreeNode, dt: number) {
   bodies.forEach((b) => {
@@ -12,20 +12,31 @@ export function gravity(bodies: Body[], root: TreeNode, dt: number) {
 }
 
 function gravitate(b: Body, tn: TreeNode, dt: number) {
+  // If the tree node is a leaf, then it represents a single body
   if (tn.leaf) {
+    // If the body doesn't exist or is the same as the current body, then there's no gravity to apply
     if (!tn.body || b == tn.body) return;
+
+    // Otherwise, add the acceleration due to the gravity of the body to the current body
     b.vel.add(gravityAcc(tn.body.pos, b, dt));
     return;
   }
 
+  // If the tree node is not a leaf, then it represents a collection of bodies
+  // Get the center of mass of the collection
   if (!tn.center) { tn.center = Vector.getMult(tn.totalCenter, 1.0 / tn.count); }
+
+  // If the collection is far enough away, then treat it as a single body
   if (tn.w / dist(b.pos, tn.center) < theta) {
+    // Calculate the acceleration due to the collection's gravity
     b.vel.add(gravityAcc(tn.center, b, tn.totalMass));
     return;
   }
 
+  // If the collection is close enough, then recursively calculate the gravity of each child
   tn.children.forEach((child) => gravitate(b, child, dt));
 }
+
 
 // Acceleration due to the gravity exerted by a on b
 function gravityAcc(a: Vector, b: Body, dt: number) {
