@@ -1,0 +1,15 @@
+body {
+  background-color: rgb(30, 30, 30);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100svh;
+  width: 100svw;
+  overflow: hidden;
+}
+
+#canvas {
+  width: 100% - 100px;
+  height: 100% - 100px;
+  border: 2px solid rgb(50, 50, 50);
+}
