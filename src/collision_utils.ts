@@ -64,11 +64,13 @@ function handleCollision(b1: Body, b2: Body, distance: number) {
   b1.heat += Math.abs(impactSpeed) * 0.1;
 
   // If already moving away from each other, return
-  if (impactSpeed > 0) return;
+  // if (impactSpeed > 0) return;
 
   const force: Vector = Vector.getMult(
     dPos,
     impactSpeed * (1 + restitution) * 0.5
   );
   b1.nextVel.sub(force);
+
+  b1.nextVel.mult(0.95)
 }

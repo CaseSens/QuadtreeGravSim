@@ -24,7 +24,7 @@ function gravitate(b: Body, tn: TreeNode, dt: number) {
 
   // If the tree node is not a leaf, then it represents a collection of bodies
   // Get the center of mass of the collection
-  if (!tn.center) { tn.center = Vector.getMult(tn.totalCenter, 1.0 / tn.count); }
+  if (!tn.center) { tn.center = Vector.getMult(tn.totalCenter, 1.0 / tn.count); };
 
   // If the collection is far enough away, then treat it as a single body
   if (tn.w / dist(b.pos, tn.center) < theta) {

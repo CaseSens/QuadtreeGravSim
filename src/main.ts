@@ -4,9 +4,10 @@ import Vector from "./vector";
 import Body from "./body";
 import { gravity } from "./phys_utils";
 import { collide } from "./collision_utils";
+import { initializeCanvasUtils } from "./canvas_utils";
 
 // CONFIG
-const N = 1000; // Num particles
+const N = 250; // Num particles
 const r = 5; // Particle radius
 const mass = 2; // Particle mass
 
@@ -15,6 +16,8 @@ const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 ctx.canvas.width = window.innerHeight - 100;
 ctx.canvas.height = window.innerHeight - 100;
+canvas.width = window.innerHeight - 100;
+canvas.height = window.innerHeight - 100;
 
 const initBounds = ctx.canvas.width; // Initial bounds of simulation in px
 const initVel = 0.005; // Initial velocity in px/s
@@ -44,7 +47,6 @@ function getBoundingBox() {
   let maxX = -Number.MAX_VALUE;
   let minY = Number.MAX_VALUE;
   let maxY = -Number.MAX_VALUE;
-
 
   for (let i = 0; i < N; i++) {
     if (!bodies[i]) continue;
@@ -99,8 +101,22 @@ function animate(timestamp: number) {
   requestAnimationFrame(animate);
 }
 
+function addBodies(initX: number, initY: number, vec: Vector) {
+  const pos = new Vector(initX, initY);
+  const vel = new Vector(vec.x, vec.y);
+
+  const randomRad = randomInRange({ min: 10, max: 25 });
+
+  bodies.push(new Body(pos, vel, 32, randomRad, 0));
+
+  // for (let i = 0; i < 50; i++) {
+  //   bodies.push(new Body(Vector.getMult(pos,randomInRange({ min: 0.9, max: 1.1 })), vel, mass, r, 0));
+  // }
+}
+
 setup();
 requestAnimationFrame(animate);
+initializeCanvasUtils(addBodies);
 
 function getColorFromHeat(x: number) {
   // Ensure x is clamped between 0 and 1
