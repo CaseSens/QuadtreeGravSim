@@ -1,4 +1,5 @@
 import Body from "./body";
+import Constants from "./constants";
 import { dist } from "./phys_utils";
 import TreeNode from "./tree_node";
 import Vector from "./vector";
@@ -72,5 +73,16 @@ function handleCollision(b1: Body, b2: Body, distance: number) {
   );
   b1.nextVel.sub(force);
 
-  b1.nextVel.mult(0.95)
+  b1.nextVel.mult(0.95);
+}
+
+export function isOutsideBounds(body: Body) {
+  const bounds = Constants.ctx.canvas.width;
+
+  return (
+    body.pos.x + body.radius > bounds ||
+    body.pos.x - body.radius < 0 ||
+    body.pos.y + body.radius > bounds ||
+    body.pos.y - body.radius < 0
+  );
 }

@@ -3,33 +3,21 @@ import { randomInRange } from "nuancejs";
 import Vector from "./vector";
 import Body from "./body";
 import { gravity } from "./phys_utils";
-import { collide } from "./collision_utils";
+import { collide, isOutsideBounds } from "./collision_utils";
 import { initializeCanvasUtils } from "./canvas_utils";
+import Constants from "./constants";
 
-// CONFIG
-const N = 250; // Num particles
-const r = 5; // Particle radius
-const mass = 2; // Particle mass
-
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-
-ctx.canvas.width = window.innerHeight - 100;
-ctx.canvas.height = window.innerHeight - 100;
-canvas.width = window.innerHeight - 100;
-canvas.height = window.innerHeight - 100;
-
-const initBounds = ctx.canvas.width; // Initial bounds of simulation in px
+const initBounds = Constants.ctx.canvas.width; // Initial bounds of simulation in px
 const initVel = 0.005; // Initial velocity in px/s
 
 let bodies: Body[] = [];
 let root: TreeNode;
 
 function setup() {
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < Constants.N; i++) {
     const pos = new Vector(
-      randomInRange({ min: 0, max: initBounds - r }), // x
-      randomInRange({ min: 0, max: initBounds - r }) // y
+      randomInRange({ min: 0, max: initBounds - Constants.r }), // x
+      randomInRange({ min: 0, max: initBounds - Constants.r }) // y
     );
 
     const vel = new Vector(
@@ -37,18 +25,24 @@ function setup() {
       randomInRange({ min: -initVel, max: initVel }) // y
     );
 
-    bodies.push(new Body(pos, vel, mass, r, 0));
+    bodies.push(new Body(pos, vel, Constants.mass, Constants.r, 0));
   }
 }
 
-function getBoundingBox() {
+/**
+ * Returns the bounding square of the current simulation.
+ * The bounding square is the smallest square that encloses all particles.
+ * @returns An array containing the x and y coordinates of the bottom left
+ *          corner of the bounding square and the length of its side.
+ */
+function getBoundingBox(): [number, number, number] {
   // indices
   let minX = Number.MAX_VALUE;
   let maxX = -Number.MAX_VALUE;
   let minY = Number.MAX_VALUE;
   let maxY = -Number.MAX_VALUE;
 
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < Constants.N; i++) {
     if (!bodies[i]) continue;
 
     minX = Math.min(minX, bodies[i].pos.x);
@@ -78,15 +72,17 @@ function draw(dt: number) {
   gravity(bodies, root, dt);
   collide(bodies, root);
 
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  bodies = bodies.filter((b) => !isOutsideBounds(b));
 
-  ctx.lineWidth = 2;
+  Constants.ctx.fillStyle = "black";
+  Constants.ctx.fillRect(0, 0, Constants.canvas.width, Constants.canvas.height);
+
+  Constants.ctx.lineWidth = 2;
   bodies.forEach((b) => {
-    ctx.strokeStyle = getColorFromHeat(b.heat / 12);
-    ctx.beginPath();
-    ctx.arc(b.pos.x, b.pos.y, b.radius, 0, 2 * Math.PI);
-    ctx.stroke();
+    Constants.ctx.strokeStyle = getColorFromHeat(b.heat / 12);
+    Constants.ctx.beginPath();
+    Constants.ctx.arc(b.pos.x, b.pos.y, b.radius, 0, 2 * Math.PI);
+    Constants.ctx.stroke();
   });
 }
 
@@ -105,13 +101,8 @@ function addBodies(initX: number, initY: number, vec: Vector) {
   const pos = new Vector(initX, initY);
   const vel = new Vector(vec.x, vec.y);
 
-  const randomRad = randomInRange({ min: 10, max: 25 });
 
-  bodies.push(new Body(pos, vel, 32, randomRad, 0));
-
-  // for (let i = 0; i < 50; i++) {
-  //   bodies.push(new Body(Vector.getMult(pos,randomInRange({ min: 0.9, max: 1.1 })), vel, mass, r, 0));
-  // }
+  bodies.push(new Body(pos, vel, 32, Constants.r, 0));
 }
 
 setup();
